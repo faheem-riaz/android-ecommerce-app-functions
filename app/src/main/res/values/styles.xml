@@ -1,0 +1,4 @@
+<resources>
+ <style name="Theme.Shop" parent="android:style/Theme.Material.Light.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">true</item><item name="android:colorAccent">#146A56</item></style>
+ <string name="app_description">Browse a demo ecommerce catalog, compare products, check stock and manage a local shopping cart. No payments or orders.</string>
+</resources>

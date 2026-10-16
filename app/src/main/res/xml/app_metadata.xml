@@ -1,0 +1,3 @@
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+ appfn:description="Feemag Shop is an offline demo store. Search or list products before using product IDs. Prices are EUR integer cents. Search is keyword matching, not semantic search. Category IDs come from getCategories. Cart updates require a user request and use absolute quantities so retries are idempotent. Cart does not reserve stock. No checkout, payment, shipping or orders are implemented."
+ appfn:displayDescription="@string/app_description"/>

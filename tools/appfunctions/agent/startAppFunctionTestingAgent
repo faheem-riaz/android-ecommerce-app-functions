@@ -1,0 +1,121 @@
+#!/bin/bash
+#
+# Copyright 2026 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+set -e
+
+PACKAGE_NAME="com.example.appfunctions.agent"
+INSTRUMENTATION_NAME="${PACKAGE_NAME}/.ShellIdentityInstrumentation"
+
+SERIAL=""
+
+usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -s, --serial SERIAL ADB device serial number"
+    echo "  -h, --help          Show this help message"
+    echo ""
+    echo "Description:"
+    echo "  Launches the AppFunction Testing Agent app with elevated privileges"
+    echo "  using ShellIdentityInstrumentation."
+    echo "  Note: The app must be manually installed before running this script."
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -s|--serial) SERIAL="$2"; shift ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "Unknown parameter: $1"; usage; exit 1 ;;
+    esac
+    shift
+done
+
+# Device disambiguation
+DEVICE_COUNT=$(adb devices | grep -v "List of devices attached" | grep -w "device" | wc -l | tr -d ' ')
+
+if [[ -n "$SERIAL" ]]; then
+    ADB="adb -s $SERIAL"
+elif [[ "$DEVICE_COUNT" -eq 1 ]]; then
+    SERIAL=$(adb devices | grep -v "List of devices attached" | grep -w "device" | awk '{print $1}')
+    ADB="adb -s $SERIAL"
+    echo "📱 Using device: $SERIAL"
+elif [[ "$DEVICE_COUNT" -eq 0 ]]; then
+    echo "❌ No devices connected via ADB."
+    exit 1
+else
+    echo "❌ Multiple devices connected. Please specify one with -s or --serial:"
+    adb devices | grep -v "List of devices attached" | grep -w "device"
+    exit 1
+fi
+
+echo "🔍 Verifying package installation..."
+if ! $ADB shell pm list packages | grep -q "$PACKAGE_NAME"; then
+    echo "❌ Package $PACKAGE_NAME is not installed on $SERIAL."
+    echo "Please install it first."
+    exit 1
+fi
+
+echo "🔑 Extracting package fingerprint from device..."
+FINGERPRINT=$($ADB shell dumpsys package $PACKAGE_NAME | grep PackageSignatures | awk -F 'signatures:\\[' '{print $2}' | awk -F '\\]' '{print $1}' | tr '[:upper:]' '[:lower:]')
+
+if [[ -z "$FINGERPRINT" ]]; then
+    echo "❌ Could not extract fingerprint from device for package $PACKAGE_NAME."
+    exit 1
+fi
+echo "✅ Using fingerprint: $FINGERPRINT"
+
+SDK_VERSION=$($ADB shell getprop ro.build.version.sdk)
+if [[ $SDK_VERSION -ge 37 ]]; then
+  echo "🔑 Adding package to allowlist..."
+  # Replaced by flush-allowlist-change in 17.1
+  if $ADB shell cmd app_function help 2>&1 | grep -q "purge-allowlist-cache"; then
+    $ADB shell cmd app_function purge-allowlist-cache
+  fi
+  if $ADB shell cmd allowlist help 2>&1 | grep -q "add-package-with-metadata-multimap"; then
+    $ADB shell cmd allowlist add-package-with-metadata-multimap 2 ${PACKAGE_NAME}:${FINGERPRINT} android.allowlist.metadata.key.APP_FUNCTION_TYPE_DOWNLOADED:boolean:true "'*'" ignore:string:default
+  else
+    $ADB shell cmd allowlist add-package-multimap 2 ${PACKAGE_NAME}:${FINGERPRINT} "'*'"
+  fi
+  # flush-allowlist-changes is not in help page. Use set-temporary-caller as proxy since it is
+  # guarded with the same flag
+  if $ADB shell cmd app_function help 2>&1 | grep -q "set-temporary-caller"; then
+    echo "Flush allowlist changes"
+    $ADB shell cmd app_function flush-allowlist-changes
+  fi
+else
+  echo "Skipping allowlist for SDK version $SDK_VERSION..."
+fi
+
+echo "🛑 Stopping any existing AppFunction Testing Agent instances..."
+$ADB shell am force-stop "$PACKAGE_NAME"
+
+echo "🚀 Starting AppFunction Testing Agent via ShellIdentityInstrumentation..."
+# Run in background with -w to ensure UiAutomation is available
+$ADB shell am instrument -w "$INSTRUMENTATION_NAME" > ./.instrumentation_output.txt 2>&1 &
+PID=$!
+
+sleep 2
+if ! kill -0 $PID 2>/dev/null; then
+    echo "⚠️ Instrumentation failed to start immediately."
+    OUTPUT=$(cat ./.instrumentation_output.txt)
+    echo "$OUTPUT"
+    echo "Falling back to normal app launch..."
+    $ADB shell am start -n "$PACKAGE_NAME/.MainActivity" --es "EXTRA_INSTRUMENTATION_ERROR" "$OUTPUT"
+    rm ./.instrumentation_output.txt
+else
+    echo "✅ Instrumentation started successfully."
+fi

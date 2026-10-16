@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#searchProducts</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Search the demo product catalog by keywords. All whitespace-separated words must match the name, description or category. No semantic search is performed. Read-only.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>query</name>
+            <description>Nonblank keywords, at most 200 characters; use getProducts to browse without a query.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>categoryId</name>
+            <description>Optional exact category ID from getCategories.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>6</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>maxPriceMinor</name>
+            <description>Optional inclusive maximum price in EUR cents; 10000 means EUR 100.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>1</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>inStockOnly</name>
+            <description>Whether to exclude unavailable products.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>sortBy</name>
+            <description>One of name, price_asc, price_desc. Null defaults to name.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>offset</name>
+            <description>Zero-based result offset, at least zero.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>limit</name>
+            <description>Page size from 1 to 50. Null defaults to 20.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.feemag.shop.ProductPage</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>Matching products, total count and nextOffset (-1 when finished). No matches is an empty page.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#searchProducts</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#getProducts</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Browse the fixed demo catalog without a search query. Read-only.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>categoryId</name>
+            <description>Optional category ID returned by getCategories.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>6</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>maxPriceMinor</name>
+            <description>Optional inclusive maximum price in nonnegative EUR cents.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>1</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>inStockOnly</name>
+            <description>True to exclude products with zero stock.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>sortBy</name>
+            <description>One of name, price_asc, price_desc. Null defaults to name.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>offset</name>
+            <description>Zero-based offset, at least zero.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>false</isRequired>
+            <name>limit</name>
+            <description>Number of results from 1 to 50. Null defaults to 20.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.feemag.shop.ProductPage</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>A page with total count and nextOffset; -1 means the final page.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#getProducts</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#getProductDetails</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Fetch the full details and current demo price of one product. Read-only.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>productId</name>
+            <description>Exact ID from getProducts or searchProducts.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.feemag.shop.Product</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>The matching product.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#getProductDetails</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#getCategories</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>List all categories for browsing or filtering. Read-only.</description>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <itemType>
+                    <dataTypeReference>com.feemag.shop.Category</dataTypeReference>
+                    <id>unused</id>
+                    <isNullable>false</isNullable>
+                    <type>11</type>
+                </itemType>
+                <type>10</type>
+            </valueType>
+            <description>Stable category identifiers and their display names.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#getCategories</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#getProductAvailability</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Check illustrative stock for a product. Does not reserve inventory. Read-only.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>productId</name>
+            <description>Exact product ID obtained from searchProducts or getProducts.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.feemag.shop.Availability</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>Available quantity and whether at least one unit is in stock.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#getProductAvailability</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#getCart</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Read the local cart and its subtotal. No checkout or stock reservation is performed.</description>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.feemag.shop.Cart</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>Cart lines and subtotal in EUR cents, excluding shipping and tax calculations.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#getCart</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.feemag.shop.BaseShopAppFunctionService#setCartItemQuantity</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Set the absolute quantity of a product in the local demo cart only when the user asks to change the cart. Repeating the same arguments is idempotent. Does not purchase anything or reserve stock.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>productId</name>
+            <description>Exact ID from searchProducts or getProducts.</description>
+        </parameters>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>quantity</name>
+            <description>Absolute desired quantity from 0 to 99, no greater than stock. Zero removes the item.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.feemag.shop.Cart</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>Updated persisted cart and subtotal in EUR cents.</description>
+        </response>
+        <functionId>com.feemag.shop.BaseShopAppFunctionService#setCartItemQuantity</functionId>
+    </appfunction>
+    <AppFunctionComponentMetadataDocument>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.feemag.shop.Availability</objectQualifiedName>
+                <description>Stock information for a single demo product.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Stable product identifier. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>productId</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Available demo units. </description>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>availableQuantity</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>True when at least one unit is available. </description>
+                        <type>1</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>inStock</name>
+                </properties>
+                <required>productId</required>
+                <required>availableQuantity</required>
+                <required>inStock</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.feemag.shop.Availability</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.feemag.shop.Cart</objectQualifiedName>
+                <description>Local cart snapshot. No payment, order or stock reservation is created.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <itemType>
+                            <dataTypeReference>com.feemag.shop.CartLine</dataTypeReference>
+                            <id>unused</id>
+                            <isNullable>false</isNullable>
+                            <type>11</type>
+                        </itemType>
+                        <description>All nonzero cart lines. </description>
+                        <type>10</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>lines</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Sum of quantities across all lines. </description>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>itemCount</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Sum of line totals in EUR cents, excluding shipping and tax calculations. </description>
+                        <type>6</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>subtotalMinor</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>ISO currency code. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>currency</name>
+                </properties>
+                <required>lines</required>
+                <required>itemCount</required>
+                <required>subtotalMinor</required>
+                <required>currency</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.feemag.shop.Cart</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.feemag.shop.CartLine</objectQualifiedName>
+                <description>One line of the local demo shopping cart.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <dataTypeReference>com.feemag.shop.Product</dataTypeReference>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>The product at current demo catalog pricing. </description>
+                        <type>11</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>product</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Number of units selected. </description>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>quantity</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Price times quantity in EUR cents. </description>
+                        <type>6</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>lineTotalMinor</name>
+                </properties>
+                <required>product</required>
+                <required>quantity</required>
+                <required>lineTotalMinor</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.feemag.shop.CartLine</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.feemag.shop.Category</objectQualifiedName>
+                <description>A category that can be used to filter products.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Stable category identifier. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>id</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Human-readable category name. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>name</name>
+                </properties>
+                <required>id</required>
+                <required>name</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.feemag.shop.Category</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.feemag.shop.Product</objectQualifiedName>
+                <description>A product from the fixed demo catalog; prices and stock are illustrative.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Stable identifier to use in detail, stock and cart functions. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>id</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Product display name. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>name</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Searchable description of the product. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>description</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Category identifier returned by getCategories. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>categoryId</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Price in integer EUR cents; 7990 means EUR 79.90. </description>
+                        <type>6</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>priceMinor</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>ISO 4217 currency code, always EUR in this demo. </description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>currency</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Illustrative available quantity; carts do not reserve stock. </description>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>stock</name>
+                </properties>
+                <required>id</required>
+                <required>name</required>
+                <required>description</required>
+                <required>categoryId</required>
+                <required>priceMinor</required>
+                <required>currency</required>
+                <required>stock</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.feemag.shop.Product</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.feemag.shop.ProductPage</objectQualifiedName>
+                <description>A bounded page of products with a continuation offset.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <itemType>
+                            <dataTypeReference>com.feemag.shop.Product</dataTypeReference>
+                            <id>unused</id>
+                            <isNullable>false</isNullable>
+                            <type>11</type>
+                        </itemType>
+                        <description>Products in this page. </description>
+                        <type>10</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>products</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Total number matching the filters before pagination. </description>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>total</name>
+                </properties>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>Offset for the next page; -1 means there are no more results. </description>
+                        <type>7</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>nextOffset</name>
+                </properties>
+                <required>products</required>
+                <required>total</required>
+                <required>nextOffset</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.feemag.shop.ProductPage</name>
+        </dataTypes>
+        <id>com.feemag.shop.BaseShopAppFunctionService</id>
+    </AppFunctionComponentMetadataDocument>
+</appfunctions>

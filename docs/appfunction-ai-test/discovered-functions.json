@@ -1,0 +1,1417 @@
+{
+  "com.feemag.shop": [
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "Search the demo product catalog by keywords. All whitespace-separated words must match the name, description or category. No semantic search is performed. Read-only."
+        ],
+        "response": [
+          {
+            "description": [
+              "Matching products, total count and nextOffset (-1 when finished). No matches is an empty page."
+            ],
+            "valueType": [
+              {
+                "dataTypeReference": [
+                  "com.feemag.shop.ProductPage"
+                ],
+                "type": [
+                  11
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#searchProducts"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "parameters": [
+          {
+            "description": [
+              "Nonblank keywords, at most 200 characters; use getProducts to browse without a query."
+            ],
+            "isRequired": [
+              true
+            ],
+            "name": [
+              "query"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Optional exact category ID from getCategories."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "categoryId"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Optional inclusive maximum price in EUR cents; 10000 means EUR 100."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "maxPriceMinor"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  6
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Whether to exclude unavailable products."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "inStockOnly"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  1
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "One of name, price_asc, price_desc. Null defaults to name."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "sortBy"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Zero-based result offset, at least zero."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "offset"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  7
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Page size from 1 to 50. Null defaults to 20."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "limit"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  7
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          }
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#searchProducts"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#searchProducts"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "Fetch the full details and current demo price of one product. Read-only."
+        ],
+        "response": [
+          {
+            "description": [
+              "The matching product."
+            ],
+            "valueType": [
+              {
+                "dataTypeReference": [
+                  "com.feemag.shop.Product"
+                ],
+                "type": [
+                  11
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#getProductDetails"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "parameters": [
+          {
+            "description": [
+              "Exact ID from getProducts or searchProducts."
+            ],
+            "isRequired": [
+              true
+            ],
+            "name": [
+              "productId"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#getProductDetails"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#getProductDetails"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "Read the local cart and its subtotal. No checkout or stock reservation is performed."
+        ],
+        "response": [
+          {
+            "description": [
+              "Cart lines and subtotal in EUR cents, excluding shipping and tax calculations."
+            ],
+            "valueType": [
+              {
+                "dataTypeReference": [
+                  "com.feemag.shop.Cart"
+                ],
+                "type": [
+                  11
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#getCart"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#getCart"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#getCart"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "Set the absolute quantity of a product in the local demo cart only when the user asks to change the cart. Repeating the same arguments is idempotent. Does not purchase anything or reserve stock."
+        ],
+        "response": [
+          {
+            "description": [
+              "Updated persisted cart and subtotal in EUR cents."
+            ],
+            "valueType": [
+              {
+                "dataTypeReference": [
+                  "com.feemag.shop.Cart"
+                ],
+                "type": [
+                  11
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#setCartItemQuantity"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "parameters": [
+          {
+            "description": [
+              "Exact ID from searchProducts or getProducts."
+            ],
+            "isRequired": [
+              true
+            ],
+            "name": [
+              "productId"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Absolute desired quantity from 0 to 99, no greater than stock. Zero removes the item."
+            ],
+            "isRequired": [
+              true
+            ],
+            "name": [
+              "quantity"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  7
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#setCartItemQuantity"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#setCartItemQuantity"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "Browse the fixed demo catalog without a search query. Read-only."
+        ],
+        "response": [
+          {
+            "description": [
+              "A page with total count and nextOffset; -1 means the final page."
+            ],
+            "valueType": [
+              {
+                "dataTypeReference": [
+                  "com.feemag.shop.ProductPage"
+                ],
+                "type": [
+                  11
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#getProducts"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "parameters": [
+          {
+            "description": [
+              "Optional category ID returned by getCategories."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "categoryId"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Optional inclusive maximum price in nonnegative EUR cents."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "maxPriceMinor"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  6
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "True to exclude products with zero stock."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "inStockOnly"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  1
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "One of name, price_asc, price_desc. Null defaults to name."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "sortBy"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Zero-based offset, at least zero."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "offset"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  7
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "description": [
+              "Number of results from 1 to 50. Null defaults to 20."
+            ],
+            "isRequired": [
+              false
+            ],
+            "name": [
+              "limit"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  7
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          }
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#getProducts"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#getProducts"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "List all categories for browsing or filtering. Read-only."
+        ],
+        "response": [
+          {
+            "description": [
+              "Stable category identifiers and their display names."
+            ],
+            "valueType": [
+              {
+                "type": [
+                  10
+                ],
+                "itemType": [
+                  {
+                    "dataTypeReference": [
+                      "com.feemag.shop.Category"
+                    ],
+                    "type": [
+                      11
+                    ],
+                    "isNullable": [
+                      false
+                    ]
+                  }
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#getCategories"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#getCategories"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#getCategories"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionStaticMetadata-com.feemag.shop": {
+        "serviceName": [
+          "com.feemag.shop.ShopAppFunctionService"
+        ],
+        "description": [
+          "Check illustrative stock for a product. Does not reserve inventory. Read-only."
+        ],
+        "response": [
+          {
+            "description": [
+              "Available quantity and whether at least one unit is in stock."
+            ],
+            "valueType": [
+              {
+                "dataTypeReference": [
+                  "com.feemag.shop.Availability"
+                ],
+                "type": [
+                  11
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "enabledByDefault": [
+          true
+        ],
+        "functionId": [
+          "com.feemag.shop.BaseShopAppFunctionService#getProductAvailability"
+        ],
+        "packageNameHash": [
+          -898601142
+        ],
+        "scope": [
+          "global"
+        ],
+        "parameters": [
+          {
+            "description": [
+              "Exact product ID obtained from searchProducts or getProducts."
+            ],
+            "isRequired": [
+              true
+            ],
+            "name": [
+              "productId"
+            ],
+            "dataTypeMetadata": [
+              {
+                "type": [
+                  8
+                ],
+                "isNullable": [
+                  false
+                ]
+              }
+            ]
+          }
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      },
+      "AppFunctionRuntimeMetadata-com.feemag.shop": {
+        "AppFunctionRuntimeMetadata-com.feemag.shop": {
+          "appFunctionStaticMetadataQualifiedId": [
+            "android$apps-db\/app_functions#com.feemag.shop\/com.feemag.shop.BaseShopAppFunctionService\\#getProductAvailability"
+          ],
+          "functionId": [
+            "com.feemag.shop.BaseShopAppFunctionService#getProductAvailability"
+          ],
+          "packageName": [
+            "com.feemag.shop"
+          ]
+        }
+      }
+    },
+    {
+      "AppFunctionComponentMetadataDocument-com.feemag.shop": {
+        "dataTypes": [
+          {
+            "name": [
+              "com.feemag.shop.Availability"
+            ],
+            "dataTypeMetadata": [
+              {
+                "description": [
+                  "Stock information for a single demo product."
+                ],
+                "properties": [
+                  {
+                    "name": [
+                      "productId"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Stable product identifier."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "availableQuantity"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Available demo units."
+                        ],
+                        "type": [
+                          7
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "inStock"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "True when at least one unit is available."
+                        ],
+                        "type": [
+                          1
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "required": [
+                  "productId",
+                  "availableQuantity",
+                  "inStock"
+                ],
+                "objectQualifiedName": [
+                  "com.feemag.shop.Availability"
+                ],
+                "type": [
+                  3
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "name": [
+              "com.feemag.shop.Cart"
+            ],
+            "dataTypeMetadata": [
+              {
+                "description": [
+                  "Local cart snapshot. No payment, order or stock reservation is created."
+                ],
+                "properties": [
+                  {
+                    "name": [
+                      "lines"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "All nonzero cart lines."
+                        ],
+                        "type": [
+                          10
+                        ],
+                        "itemType": [
+                          {
+                            "dataTypeReference": [
+                              "com.feemag.shop.CartLine"
+                            ],
+                            "type": [
+                              11
+                            ],
+                            "isNullable": [
+                              false
+                            ]
+                          }
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "itemCount"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Sum of quantities across all lines."
+                        ],
+                        "type": [
+                          7
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "subtotalMinor"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Sum of line totals in EUR cents, excluding shipping and tax calculations."
+                        ],
+                        "type": [
+                          6
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "currency"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "ISO currency code."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "required": [
+                  "lines",
+                  "itemCount",
+                  "subtotalMinor",
+                  "currency"
+                ],
+                "objectQualifiedName": [
+                  "com.feemag.shop.Cart"
+                ],
+                "type": [
+                  3
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "name": [
+              "com.feemag.shop.CartLine"
+            ],
+            "dataTypeMetadata": [
+              {
+                "description": [
+                  "One line of the local demo shopping cart."
+                ],
+                "properties": [
+                  {
+                    "name": [
+                      "product"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "The product at current demo catalog pricing."
+                        ],
+                        "dataTypeReference": [
+                          "com.feemag.shop.Product"
+                        ],
+                        "type": [
+                          11
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "quantity"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Number of units selected."
+                        ],
+                        "type": [
+                          7
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "lineTotalMinor"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Price times quantity in EUR cents."
+                        ],
+                        "type": [
+                          6
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "required": [
+                  "product",
+                  "quantity",
+                  "lineTotalMinor"
+                ],
+                "objectQualifiedName": [
+                  "com.feemag.shop.CartLine"
+                ],
+                "type": [
+                  3
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "name": [
+              "com.feemag.shop.Category"
+            ],
+            "dataTypeMetadata": [
+              {
+                "description": [
+                  "A category that can be used to filter products."
+                ],
+                "properties": [
+                  {
+                    "name": [
+                      "id"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Stable category identifier."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "name"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Human-readable category name."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "required": [
+                  "id",
+                  "name"
+                ],
+                "objectQualifiedName": [
+                  "com.feemag.shop.Category"
+                ],
+                "type": [
+                  3
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "name": [
+              "com.feemag.shop.Product"
+            ],
+            "dataTypeMetadata": [
+              {
+                "description": [
+                  "A product from the fixed demo catalog; prices and stock are illustrative."
+                ],
+                "properties": [
+                  {
+                    "name": [
+                      "id"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Stable identifier to use in detail, stock and cart functions."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "name"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Product display name."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "description"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Searchable description of the product."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "categoryId"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Category identifier returned by getCategories."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "priceMinor"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Price in integer EUR cents; 7990 means EUR 79.90."
+                        ],
+                        "type": [
+                          6
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "currency"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "ISO 4217 currency code, always EUR in this demo."
+                        ],
+                        "type": [
+                          8
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "stock"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Illustrative available quantity; carts do not reserve stock."
+                        ],
+                        "type": [
+                          7
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "categoryId",
+                  "priceMinor",
+                  "currency",
+                  "stock"
+                ],
+                "objectQualifiedName": [
+                  "com.feemag.shop.Product"
+                ],
+                "type": [
+                  3
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "name": [
+              "com.feemag.shop.ProductPage"
+            ],
+            "dataTypeMetadata": [
+              {
+                "description": [
+                  "A bounded page of products with a continuation offset."
+                ],
+                "properties": [
+                  {
+                    "name": [
+                      "products"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Products in this page."
+                        ],
+                        "type": [
+                          10
+                        ],
+                        "itemType": [
+                          {
+                            "dataTypeReference": [
+                              "com.feemag.shop.Product"
+                            ],
+                            "type": [
+                              11
+                            ],
+                            "isNullable": [
+                              false
+                            ]
+                          }
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "total"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Total number matching the filters before pagination."
+                        ],
+                        "type": [
+                          7
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": [
+                      "nextOffset"
+                    ],
+                    "dataTypeMetadata": [
+                      {
+                        "description": [
+                          "Offset for the next page; -1 means there are no more results."
+                        ],
+                        "type": [
+                          7
+                        ],
+                        "isNullable": [
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "required": [
+                  "products",
+                  "total",
+                  "nextOffset"
+                ],
+                "objectQualifiedName": [
+                  "com.feemag.shop.ProductPage"
+                ],
+                "type": [
+                  3
+                ],
+                "isNullable": [
+                  true
+                ]
+              }
+            ]
+          }
+        ],
+        "mobileApplicationQualifiedId": [
+          "android$apps-db\/apps#com.feemag.shop"
+        ],
+        "packageName": [
+          "com.feemag.shop"
+        ]
+      }
+    }
+  ]
+}

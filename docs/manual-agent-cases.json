@@ -1,0 +1,99 @@
+{
+  "description": "Manual argument and assertion examples, not a platform request envelope. Discover function IDs from the installed package. Cart assertions concern only audio-01; other lines may exist.",
+  "packageName": "com.feemag.shop",
+  "cases": [
+    {
+      "function": "getCategories",
+      "arguments": {},
+      "expected": {
+        "categoryIds": [
+          "audio",
+          "workspace",
+          "everyday"
+        ]
+      }
+    },
+    {
+      "function": "searchProducts",
+      "arguments": {
+        "query": "wireless headphones",
+        "maxPriceMinor": 10000,
+        "inStockOnly": true
+      },
+      "expected": {
+        "productIds": [
+          "audio-01"
+        ]
+      }
+    },
+    {
+      "function": "getProducts",
+      "arguments": {
+        "categoryId": "audio",
+        "limit": 2,
+        "sortBy": "price_asc"
+      },
+      "expected": {
+        "total": 3,
+        "nextOffset": 2
+      }
+    },
+    {
+      "function": "getProductDetails",
+      "arguments": {
+        "productId": "audio-01"
+      },
+      "expected": {
+        "priceMinor": 7990,
+        "currency": "EUR"
+      }
+    },
+    {
+      "function": "getProductAvailability",
+      "arguments": {
+        "productId": "audio-03"
+      },
+      "expected": {
+        "availableQuantity": 0,
+        "inStock": false
+      }
+    },
+    {
+      "function": "setCartItemQuantity",
+      "arguments": {
+        "productId": "audio-01",
+        "quantity": 2
+      },
+      "expected": {
+        "headphoneQuantity": 2
+      }
+    },
+    {
+      "function": "setCartItemQuantity",
+      "arguments": {
+        "productId": "audio-01",
+        "quantity": 2
+      },
+      "expected": {
+        "headphoneQuantity": 2
+      }
+    },
+    {
+      "function": "getCart",
+      "arguments": {},
+      "expected": {
+        "headphoneQuantity": 2
+      }
+    },
+    {
+      "function": "setCartItemQuantity",
+      "arguments": {
+        "productId": "audio-01",
+        "quantity": 0
+      },
+      "expected": {
+        "headphoneQuantity": 0
+      }
+    }
+  ]
+}

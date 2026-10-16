@@ -1,0 +1,7 @@
+Feemag Shop educational demo
+AppFunctions integration and Gradle wrapper based on android/appfunctions.
+Upstream: https://github.com/android/appfunctions
+Inspected commit: 16aa38ab1a5f31424c7f96ea020763e67d41f166
+Copyright 2026 The Android Open Source Project
+Licensed under Apache License 2.0; see LICENSE.
+New ecommerce demo implementation provided under the same license.

@@ -1,0 +1,7 @@
+com.feemag.shop.BaseShopAppFunctionService#searchProducts
+com.feemag.shop.BaseShopAppFunctionService#getProducts
+com.feemag.shop.BaseShopAppFunctionService#getProductDetails
+com.feemag.shop.BaseShopAppFunctionService#getCategories
+com.feemag.shop.BaseShopAppFunctionService#getProductAvailability
+com.feemag.shop.BaseShopAppFunctionService#getCart
+com.feemag.shop.BaseShopAppFunctionService#setCartItemQuantity

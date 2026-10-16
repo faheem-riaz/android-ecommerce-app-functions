@@ -1,0 +1,40 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.example.appfunctions.agent.data
+
+/** Enum representing the supported LLM providers. */
+enum class LlmProviderName {
+    GEMINI,
+    OPENAI,
+}
+
+/** Enum representing the supported LLM models. */
+enum class LlmModel private constructor(val providerName: LlmProviderName, val modelName: String) {
+    OPENAI_GPT_5_4_MINI(LlmProviderName.OPENAI, "gpt-5.4-mini"),
+    // Stable (GA) models: consistent latency and production rate limits. Prefer these.
+    GEMINI_3_5_FLASH(LlmProviderName.GEMINI, "gemini-3.5-flash"),
+    GEMINI_3_1_FLASH_LITE(LlmProviderName.GEMINI, "gemini-3.1-flash-lite"),
+
+    // Preview models: newer capabilities but restrictive rate limits and no latency SLA.
+    GEMINI_3_1_PRO_PREVIEW(LlmProviderName.GEMINI, "gemini-3.1-pro-preview"),
+    GEMINI_3_FLASH_PREVIEW(LlmProviderName.GEMINI, "gemini-3-flash-preview"),
+    GEMINI_3_1_FLASH_LITE_PREVIEW(LlmProviderName.GEMINI, "gemini-3.1-flash-lite-preview"),
+    ;
+
+    companion object {
+        val DEFAULT = OPENAI_GPT_5_4_MINI
+    }
+}

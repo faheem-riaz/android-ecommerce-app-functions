@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.feemag.shop.ShopRepositoryTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-15T17:18:25.194Z" hostname="192.168.1.20" time="0.101">
+  <properties/>
+  <testcase name="priceBoundaryIsInclusive" classname="com.feemag.shop.ShopRepositoryTest" time="0.054"/>
+  <testcase name="emptyResultsAreSuccessful" classname="com.feemag.shop.ShopRepositoryTest" time="0.015"/>
+  <testcase name="invalidInputsAreRejected" classname="com.feemag.shop.ShopRepositoryTest" time="0.004"/>
+  <testcase name="paginationDoesNotDuplicateProducts" classname="com.feemag.shop.ShopRepositoryTest" time="0.005"/>
+  <testcase name="offsetBeyondEndDoesNotOverflow" classname="com.feemag.shop.ShopRepositoryTest" time="0.001"/>
+  <testcase name="stockAndUnknownIdsAreValidated" classname="com.feemag.shop.ShopRepositoryTest" time="0.007"/>
+  <testcase name="invalidStoredLinesAreDiscarded" classname="com.feemag.shop.ShopRepositoryTest" time="0.001"/>
+  <testcase name="storageFailureDoesNotPublishAnUnsavedCart" classname="com.feemag.shop.ShopRepositoryTest" time="0.001"/>
+  <testcase name="cartTotalsAndRemoval" classname="com.feemag.shop.ShopRepositoryTest" time="0.0"/>
+  <testcase name="keywordSearchCombinesWordsAndFilters" classname="com.feemag.shop.ShopRepositoryTest" time="0.0"/>
+  <testcase name="cartUpdatesAreIdempotentAndPersistAcrossInstances" classname="com.feemag.shop.ShopRepositoryTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

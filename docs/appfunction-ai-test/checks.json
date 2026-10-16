@@ -1,0 +1,222 @@
+[
+  {
+    "test": "Browse with all optional arguments omitted",
+    "function": "getProducts",
+    "arguments": {},
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Search with optional arguments omitted",
+    "function": "searchProducts",
+    "arguments": {
+      "query": "wireless headphones"
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Case and repeated whitespace",
+    "function": "searchProducts",
+    "arguments": {
+      "query": "  WIRELESS   Headphones  "
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "No matching products is an empty success",
+    "function": "searchProducts",
+    "arguments": {
+      "query": "spaceship"
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Exact inclusive price boundary",
+    "function": "getProducts",
+    "arguments": {
+      "maxPriceMinor": 990
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "In-stock filter excludes unavailable earbuds",
+    "function": "getProducts",
+    "arguments": {
+      "categoryId": "audio",
+      "inStockOnly": true
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Descending price order",
+    "function": "getProducts",
+    "arguments": {
+      "categoryId": "audio",
+      "sortBy": "price_desc"
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Offset beyond result count",
+    "function": "getProducts",
+    "arguments": {
+      "offset": 2147483647
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Zero stock is reported accurately",
+    "function": "getProductAvailability",
+    "arguments": {
+      "productId": "audio-03"
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Blank query rejected",
+    "function": "searchProducts",
+    "arguments": {
+      "query": " "
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Overlong query rejected",
+    "function": "searchProducts",
+    "arguments": {
+      "query": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Unknown category rejected",
+    "function": "getProducts",
+    "arguments": {
+      "categoryId": "missing"
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Negative price rejected",
+    "function": "getProducts",
+    "arguments": {
+      "maxPriceMinor": -1
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Invalid sort rejected",
+    "function": "getProducts",
+    "arguments": {
+      "sortBy": "random"
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Negative offset rejected",
+    "function": "getProducts",
+    "arguments": {
+      "offset": -1
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Zero page size rejected",
+    "function": "getProducts",
+    "arguments": {
+      "limit": 0
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Oversized page rejected",
+    "function": "getProducts",
+    "arguments": {
+      "limit": 51
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Unavailable product cannot enter cart",
+    "function": "setCartItemQuantity",
+    "arguments": {
+      "productId": "audio-03",
+      "quantity": 1
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Stock limit enforced",
+    "function": "setCartItemQuantity",
+    "arguments": {
+      "productId": "audio-01",
+      "quantity": 13
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Negative cart quantity rejected",
+    "function": "setCartItemQuantity",
+    "arguments": {
+      "productId": "audio-01",
+      "quantity": -1
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Quantity over 99 rejected",
+    "function": "setCartItemQuantity",
+    "arguments": {
+      "productId": "audio-01",
+      "quantity": 100
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Unknown cart product rejected",
+    "function": "setCartItemQuantity",
+    "arguments": {
+      "productId": "missing",
+      "quantity": 1
+    },
+    "status": "PASS",
+    "detail": "Expected error returned"
+  },
+  {
+    "test": "Retrying quantity two does not duplicate items",
+    "function": "setCartItemQuantity",
+    "arguments": {
+      "productId": "audio-01",
+      "quantity": 2
+    },
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  },
+  {
+    "test": "Cart unchanged by rejected mutations",
+    "function": "getCart",
+    "arguments": {},
+    "status": "PASS",
+    "detail": "Response assertions passed"
+  }
+]

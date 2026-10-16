@@ -1,0 +1,754 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.example.appfunctions.agent.domain
+
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
+import androidx.core.content.FileProvider
+import com.example.appfunctions.agent.data.AgentInternalTools
+import com.example.appfunctions.agent.data.LlmProviderName
+import com.example.appfunctions.agent.data.SettingsRepository
+import com.example.appfunctions.agent.data.db.entities.MessageAttachment
+import com.example.appfunctions.agent.data.db.entities.MessageEntity
+import com.example.appfunctions.agent.data.db.entities.MessageProcessingStatus
+import com.example.appfunctions.agent.data.db.entities.MessageRole
+import com.example.appfunctions.agent.data.db.entities.ThreadEntity
+import com.example.appfunctions.agent.domain.appfunction.AppFunctionExceptionFormatter
+import com.example.appfunctions.agent.domain.appfunction.ConvertInputToAppFunctionDataUseCase
+import com.example.appfunctions.agent.domain.appfunction.ExecuteAppFunctionResult
+import com.example.appfunctions.agent.domain.appfunction.ExecuteAppFunctionUseCase
+import com.example.appfunctions.agent.domain.appfunction.GetAppFunctionStatesUseCase
+import com.example.appfunctions.agent.domain.appfunction.GetAppFunctionsUseCase
+import com.example.appfunctions.agent.domain.chat.ManageThreadsUseCase
+import com.example.appfunctions.agent.domain.chat.ObservePendingMessagesUseCase
+import com.example.appfunctions.agent.domain.chat.SendMessageUseCase
+import com.example.appfunctions.agent.domain.chat.UpdateMessageParams
+import com.example.appfunctions.agent.domain.chat.UpdateMessageUseCase
+import com.example.appfunctions.agent.domain.chat.UpdateThreadParams
+import com.example.appfunctions.agent.domain.chat.UpdateThreadUseCase
+import com.example.appfunctions.agent.domain.pendingintent.SavePendingIntentUseCase
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/** Orchestrates the interaction between the LLM, AppFunctions, and the chat repository. */
+@Singleton
+class AgentOrchestrator
+    @Inject
+    constructor(
+        @ApplicationContext private val context: Context,
+        private val manageThreadsUseCase: ManageThreadsUseCase,
+        private val observePendingMessagesUseCase: ObservePendingMessagesUseCase,
+        private val sendMessageUseCase: SendMessageUseCase,
+        private val updateMessageUseCase: UpdateMessageUseCase,
+        private val updateThreadUseCase: UpdateThreadUseCase,
+        private val llmProviderFactory: LlmProviderFactory,
+        private val settingsRepository: SettingsRepository,
+        private val getAppFunctionsUseCase: GetAppFunctionsUseCase,
+        private val getAppFunctionStatesUseCase: GetAppFunctionStatesUseCase,
+        private val convertInputToAppFunctionDataUseCase: ConvertInputToAppFunctionDataUseCase,
+        private val executeAppFunctionUseCase: ExecuteAppFunctionUseCase,
+        private val savePendingIntentUseCase: SavePendingIntentUseCase,
+        private val agentInternalTools: AgentInternalTools,
+    ) {
+        private val _status = MutableStateFlow<AgentStatus>(AgentStatus.Idle)
+
+        /** The current status of the agent. */
+        val status: StateFlow<AgentStatus> = _status.asStateFlow()
+
+        /**
+         * Observes messages for a specific thread and processes any pending agent responses. This
+         * method suspends and collects messages until cancelled.
+         */
+        suspend fun observeAndProcessMessages(threadId: String) =
+            coroutineScope {
+                val threadStateFlow =
+                    manageThreadsUseCase.getThread(
+                        threadId,
+                    ).stateIn(this, SharingStarted.Eagerly, null)
+
+                observePendingMessagesUseCase(threadId).collect { message ->
+                    if (message != null) {
+                        val thread = threadStateFlow.filterNotNull().first()
+                        processMessage(message, thread)
+                    }
+                }
+            }
+
+        private suspend fun processMessage(
+            message: MessageEntity,
+            thread: ThreadEntity,
+        ) {
+            _status.value = AgentStatus.Thinking
+
+            try {
+                val provider = thread.llmModel.providerName
+                val apiKey = getApiKey(provider)
+                if (apiKey.isNullOrBlank()) {
+                    completeMessageWithError(
+                        message.messageId,
+                        message.threadId,
+                        "API key is missing for ${provider.name}",
+                    )
+                    _status.value = AgentStatus.Idle
+                    return
+                }
+
+                val disconnectedApps = settingsRepository.disconnectedApps.first()
+                val allTools =
+                    getAppFunctionsUseCase().first().values.flatten() +
+                        (if (provider == LlmProviderName.GEMINI) agentInternalTools.getInternalToolsMetadata().map { it.first } else emptyList())
+
+                val targetPackageName = message.targetPackageName
+                val queryText = message.textContent
+
+                val tools = filterTools(allTools, disconnectedApps, targetPackageName)
+
+                runInteractionLoop(
+                    message = message,
+                    thread = thread,
+                    apiKey = apiKey,
+                    tools = tools,
+                    initialInput = queryText,
+                )
+
+                _status.value = AgentStatus.Idle
+            } catch (e: Exception) {
+                Log.e("AgentOrchestrator", "Error processing message", e)
+                completeMessageWithError(
+                    message.messageId,
+                    message.threadId,
+                    e.message ?: "Unknown error occurred",
+                )
+                _status.value = AgentStatus.Idle
+            }
+        }
+
+        private suspend fun filterTools(
+            allTools: List<AppFunctionMetadata>,
+            disconnectedApps: Set<String>,
+            targetPackageName: String?,
+        ): List<AppFunctionMetadata> {
+            val functionNames = allTools.map { it.name }
+            val states = getAppFunctionStatesUseCase(functionNames) + agentInternalTools.getInternalToolsMetadata().map { it.second }
+            val stateMap = states.associateBy { it.functionName }
+
+            return allTools
+                .filter { metadata ->
+                    val isEnabled =
+                        if (metadata.packageName == AgentInternalTools.INTERNAL_TOOL_PACKAGE) {
+                            true
+                        } else {
+                            stateMap[metadata.name]?.isEnabled ?: false
+                        }
+                    isEnabled &&
+                        metadata.packageName !in disconnectedApps &&
+                        (targetPackageName == null || metadata.packageName == targetPackageName)
+                }
+                .sortedByDescending { metadata -> metadata.id.startsWith(metadata.packageName) }
+                .distinctBy { metadata -> metadata.id }
+        }
+
+        private suspend fun runInteractionLoop(
+            message: MessageEntity,
+            thread: ThreadEntity,
+            apiKey: String,
+            tools: List<AppFunctionMetadata>,
+            initialInput: String,
+        ) {
+            val provider = thread.llmModel.providerName
+            val modelName = thread.llmModel.modelName
+            val llmProvider = llmProviderFactory.getProvider(provider)
+            val serviceTier = settingsRepository.serviceTier.first()
+
+            var previousInteractionId = thread.latestInteractionId
+            var currentToolOutputs = emptyList<ToolOutput>()
+            var continueLoop = true
+            var currentInput = initialInput
+            val capturedAttachments = mutableListOf<MessageAttachment>()
+
+            var roundCount = 0
+            while (continueLoop) {
+                if (++roundCount > 12) {
+                    completeMessageWithError(message.messageId, message.threadId,
+                        "Stopped after 12 model rounds. Please narrow your request.")
+                    return
+                }
+                val llmInput = prepareLlmInput(currentToolOutputs, currentInput)
+
+                currentToolOutputs = emptyList()
+                val response =
+                    llmProvider.generateResponse(
+                        previousInteractionId = previousInteractionId,
+                        input = llmInput,
+                        tools = tools,
+                        apiKey = apiKey,
+                        modelName = modelName,
+                        serviceTier = serviceTier,
+                    )
+
+                when (
+                    val handleResult =
+                        handleLlmResponse(response, message, tools, capturedAttachments)
+                ) {
+                    is HandleResult.Continue -> {
+                        currentToolOutputs = handleResult.toolOutputs
+                        previousInteractionId = handleResult.interactionId
+                    }
+
+                    is HandleResult.Stop -> {
+                        continueLoop = false
+                    }
+                }
+            }
+        }
+
+        private suspend fun getApiKey(provider: LlmProviderName): String? {
+            return when (provider) {
+                LlmProviderName.GEMINI -> settingsRepository.geminiApiKey.first()
+                LlmProviderName.OPENAI -> settingsRepository.openAiApiKey.first()
+            }
+        }
+
+        private fun prepareLlmInput(
+            currentToolOutputs: List<ToolOutput>,
+            currentInput: String,
+        ): LlmInput {
+            return if (currentToolOutputs.isNotEmpty()) {
+                LlmInput.ToolResponse(currentToolOutputs)
+            } else {
+                LlmInput.UserMessage(currentInput)
+            }
+        }
+
+        private sealed class HandleResult {
+            data class Continue(val toolOutputs: List<ToolOutput>, val interactionId: String) :
+                HandleResult()
+
+            object Stop : HandleResult()
+        }
+
+        private sealed class ExecuteToolCallsResult {
+            data class Success(val toolOutputs: List<ToolOutput>) : ExecuteToolCallsResult()
+
+            data class PendingIntentAction(
+                val pendingIntentId: String,
+                val pendingIntent: PendingIntent,
+            ) : ExecuteToolCallsResult()
+
+            object Error : ExecuteToolCallsResult()
+        }
+
+        private suspend fun handleLlmResponse(
+            response: LlmResponse,
+            message: MessageEntity,
+            tools: List<AppFunctionMetadata>,
+            capturedAttachments: MutableList<MessageAttachment>,
+        ): HandleResult {
+            return when (response) {
+                is LlmResponse.Success -> {
+                    updateThreadUseCase(
+                        message.threadId,
+                        UpdateThreadParams(interactionId = response.interactionId),
+                    )
+                    updateMessageUseCase(
+                        message.messageId,
+                        UpdateMessageParams(status = MessageProcessingStatus.PROCESSED),
+                    )
+
+                    val toolCalls = response.parts.filterIsInstance<LlmResponsePart.ToolCall>()
+                    val textParts = response.parts.filterIsInstance<LlmResponsePart.Text>()
+
+                    val textContent = textParts.joinToString("\n") { it.text }
+
+                    if (toolCalls.isNotEmpty()) {
+                        when (val toolResult = executeToolCalls(toolCalls, tools, message)) {
+                            is ExecuteToolCallsResult.Success -> {
+                                for (output in toolResult.toolOutputs) {
+                                    runCatching {
+                                        val json = JSONObject(output.result)
+                                        val uri = json.optString("imageUri")
+                                        if (uri.isNotBlank()) {
+                                            val mimeType =
+                                                json.optString("mimeType")
+                                                    .takeIf { it.isNotBlank() }
+                                                    ?: "image/png"
+                                            capturedAttachments.add(
+                                                MessageAttachment(uri = uri, mimeType = mimeType),
+                                            )
+                                        }
+                                    }
+                                }
+                                if (textContent.isNotEmpty()) {
+                                    sendMessageUseCase(
+                                        threadId = message.threadId,
+                                        role = MessageRole.ASSISTANT,
+                                        textContent = textContent,
+                                        processingStatus = MessageProcessingStatus.PROCESSED,
+                                    )
+                                }
+                                HandleResult.Continue(
+                                    toolResult.toolOutputs,
+                                    response.interactionId,
+                                )
+                            }
+
+                            is ExecuteToolCallsResult.PendingIntentAction -> {
+                                savePendingIntentUseCase(
+                                    toolResult.pendingIntentId,
+                                    toolResult.pendingIntent,
+                                )
+                                sendMessageUseCase(
+                                    threadId = message.threadId,
+                                    role = MessageRole.ASSISTANT,
+                                    textContent = textContent,
+                                    processingStatus = MessageProcessingStatus.PROCESSED,
+                                    pendingIntentId = toolResult.pendingIntentId,
+                                )
+                                HandleResult.Stop
+                            }
+
+                            is ExecuteToolCallsResult.Error -> {
+                                HandleResult.Stop
+                            }
+                        }
+                    } else {
+                        if (textContent.isNotEmpty() || capturedAttachments.isNotEmpty()) {
+                            sendMessageUseCase(
+                                threadId = message.threadId,
+                                role = MessageRole.ASSISTANT,
+                                textContent = textContent,
+                                processingStatus = MessageProcessingStatus.PROCESSED,
+                                attachments = capturedAttachments,
+                            )
+                        }
+                        HandleResult.Stop
+                    }
+                }
+
+                is LlmResponse.Error -> {
+                    Log.e("AgentOrchestrator", "LLM Error: ${response.errorMessage}")
+                    completeMessageWithError(
+                        message.messageId,
+                        message.threadId,
+                        response.errorMessage,
+                    )
+                    _status.value = AgentStatus.Idle
+                    HandleResult.Stop
+                }
+            }
+        }
+
+        private suspend fun executeToolCalls(
+            toolCalls: List<LlmResponsePart.ToolCall>,
+            tools: List<AppFunctionMetadata>,
+            message: MessageEntity,
+        ): ExecuteToolCallsResult {
+            val results = mutableListOf<ToolOutput>()
+            for (toolCall in toolCalls) {
+                _status.value = AgentStatus.InvokingTool(toolCall.functionId, toolCall.packageName)
+
+                if (toolCall.packageName == AgentInternalTools.INTERNAL_TOOL_PACKAGE) {
+                    val executionResult = executeInternalTool(toolCall)
+                    executionResult
+                        .onSuccess { jsonString ->
+                            results.add(
+                                ToolOutput(
+                                    functionId = toolCall.functionId,
+                                    callId = toolCall.callId,
+                                    result = jsonString,
+                                ),
+                            )
+                        }
+                        .onFailure { exception ->
+                            completeMessageWithError(
+                                message.messageId,
+                                message.threadId,
+                                "Internal tool execution failed: ${exception.message}",
+                            )
+                            return ExecuteToolCallsResult.Error
+                        }
+                    continue
+                }
+
+                val matchingTool =
+                    tools.find {
+                        it.packageName == toolCall.packageName && it.id == toolCall.functionId
+                    }
+
+                if (matchingTool == null) {
+                    completeMessageWithError(
+                        message.messageId,
+                        message.threadId,
+                        "Tool not found: ${toolCall.functionId}",
+                    )
+                    return ExecuteToolCallsResult.Error
+                }
+
+                val rawConvertedInputs = toolCall.arguments.filterValues { it != null } as Map<String, Any>
+                val convertedInputs =
+                    try {
+                        withContext(Dispatchers.IO) {
+                            resolveRemoteFileReferencesRecursively(
+                                context = context,
+                                parametersMetadata = matchingTool.parameters,
+                                inputs = rawConvertedInputs,
+                            )
+                        }
+                    } catch (e: Exception) {
+                        completeMessageWithError(
+                            message.messageId,
+                            message.threadId,
+                            "Failed to download remote file reference: ${e.message}",
+                        )
+                        return ExecuteToolCallsResult.Error
+                    }
+
+                grantContentUriPermissionsRecursively(context, toolCall.packageName, convertedInputs)
+
+                for (value in convertedInputs.values) {
+                    if (value is String && value.startsWith("content://")) {
+                        runCatching {
+                            val uri = Uri.parse(value)
+                            context.grantUriPermission(
+                                toolCall.packageName,
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                            )
+                        }
+                    }
+                }
+
+                val appFunctionDataResult =
+                    withContext(Dispatchers.Default) {
+                        convertInputToAppFunctionDataUseCase(
+                            parameters = matchingTool.parameters,
+                            components = matchingTool.components,
+                            inputs = convertedInputs,
+                        )
+                    }
+                if (appFunctionDataResult.isFailure) {
+                    completeMessageWithError(
+                        message.messageId,
+                        message.threadId,
+                        "Failed to convert arguments for ${toolCall.functionId}\n ${appFunctionDataResult.exceptionOrNull()}",
+                    )
+                    return ExecuteToolCallsResult.Error
+                }
+
+                val executionResult =
+                    executeAppFunctionUseCase(
+                        function = matchingTool,
+                        parameters = appFunctionDataResult.getOrThrow(),
+                        threadId = message.threadId,
+                    )
+
+                when (executionResult) {
+                    is ExecuteAppFunctionResult.Data -> {
+                        results.add(
+                            ToolOutput(
+                                functionId = toolCall.functionId,
+                                callId = toolCall.callId,
+                                result = executionResult.formattedJson,
+                            ),
+                        )
+                    }
+
+                    is ExecuteAppFunctionResult.PendingIntentAction -> {
+                        val pendingIntentId = java.util.UUID.randomUUID().toString()
+                        return ExecuteToolCallsResult.PendingIntentAction(
+                            pendingIntentId,
+                            executionResult.pendingIntent,
+                        )
+                    }
+
+                    is ExecuteAppFunctionResult.Error -> {
+                        val exception = executionResult.exception
+                        if (exception is CancellationException) {
+                            throw exception
+                        }
+                        val appFunctionException =
+                            AppFunctionExceptionFormatter.getAppFunctionException(exception)
+                        if (appFunctionException != null) {
+                            results.add(
+                                ToolOutput(
+                                    functionId = toolCall.functionId,
+                                    callId = toolCall.callId,
+                                    result =
+                                        AppFunctionExceptionFormatter.format(
+                                            appFunctionException,
+                                            toolCall.functionId,
+                                        ),
+                                ),
+                            )
+                        } else {
+                            throw IllegalStateException(
+                                "Tool execution failed for ${toolCall.functionId}: ${exception.message}",
+                                exception,
+                            )
+                        }
+                    }
+                }
+            }
+            return ExecuteToolCallsResult.Success(results)
+        }
+
+        private suspend fun completeMessageWithError(
+            messageId: String,
+            threadId: String,
+            reason: String,
+        ) {
+            updateMessageUseCase(
+                messageId,
+                UpdateMessageParams(status = MessageProcessingStatus.PROCESSED),
+            )
+            sendMessageUseCase(
+                threadId = threadId,
+                role = MessageRole.ASSISTANT,
+                textContent = reason,
+                processingStatus = MessageProcessingStatus.FAILED,
+            )
+        }
+
+        private fun resolveRemoteFileReferencesRecursively(
+            context: Context,
+            parametersMetadata: List<AppFunctionParameterMetadata>,
+            inputs: Map<String, Any>,
+        ): Map<String, Any> {
+            val paramMap = parametersMetadata.associateBy { it.name }
+            return inputs.mapValues { (key, value) ->
+                val paramMeta = paramMap[key]
+                resolveValueRecursively(context, paramMeta?.dataType, value, key)
+            }
+        }
+
+        private fun resolveValueRecursively(
+            context: Context,
+            dataType: AppFunctionDataTypeMetadata?,
+            value: Any,
+            paramName: String?,
+        ): Any {
+            return when (value) {
+                is String -> {
+                    val shouldResolve =
+                        isFileReferenceParameter(paramName) || isUriMetadata(dataType)
+                    if (shouldResolve && (
+                            value.startsWith(
+                                "http://",
+                            ) || value.startsWith("https://")
+                        )
+                    ) {
+                        downloadRemoteFileToContentUri(context, value)
+                    } else {
+                        value
+                    }
+                }
+                is Map<*, *> -> {
+                    value.entries.associate { entry ->
+                        val k = entry.key as String
+                        val propType =
+                            (dataType as? AppFunctionObjectTypeMetadata)?.properties?.get(k)
+                        k to (
+                            entry.value?.let {
+                                resolveValueRecursively(
+                                    context,
+                                    propType,
+                                    it,
+                                    k,
+                                )
+                            } ?: ""
+                        )
+                    }
+                }
+                is List<*> -> {
+                    val itemType = (dataType as? AppFunctionArrayTypeMetadata)?.itemType
+                    value.mapNotNull { item ->
+                        if (item != null) resolveValueRecursively(context, itemType, item, paramName) else null
+                    }
+                }
+                else -> value
+            }
+        }
+
+        private fun downloadRemoteFileToContentUri(
+            context: Context,
+            urlString: String,
+        ): String {
+            val url = URL(urlString)
+            val connection =
+                (url.openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 10000
+                    readTimeout = 15000
+                }
+            try {
+                connection.connect()
+                val contentType = connection.contentType ?: ""
+                val ext =
+                    when {
+                        contentType.contains("png", ignoreCase = true) -> "png"
+                        contentType.contains("jpeg", ignoreCase = true) ||
+                            contentType.contains("jpg", ignoreCase = true) -> "jpg"
+                        contentType.contains("gif", ignoreCase = true) -> "gif"
+                        contentType.contains("webp", ignoreCase = true) -> "webp"
+                        urlString.substringAfterLast("/", "").contains(".") ->
+                            urlString.substringAfterLast("/").substringAfterLast(".")
+                        else -> "jpg"
+                    }
+                val cacheDir = File(context.cacheDir, "file_references").apply { mkdirs() }
+                val file = File(cacheDir, "generated_${UUID.randomUUID()}.$ext")
+                connection.inputStream.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                val contentUri =
+                    FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider",
+                        file,
+                    )
+                return contentUri.toString()
+            } finally {
+                connection.disconnect()
+            }
+        }
+
+        private fun grantContentUriPermissionsRecursively(
+            context: Context,
+            targetPackageName: String,
+            value: Any?,
+        ) {
+            when (value) {
+                is String -> {
+                    if (value.startsWith("content://")) {
+                        runCatching {
+                            val uri = Uri.parse(value)
+                            context.grantUriPermission(
+                                targetPackageName,
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                            )
+                        }
+                    }
+                }
+                is Map<*, *> ->
+                    value.values.forEach {
+                        grantContentUriPermissionsRecursively(context, targetPackageName, it)
+                    }
+                is List<*> ->
+                    value.forEach {
+                        grantContentUriPermissionsRecursively(context, targetPackageName, it)
+                    }
+            }
+        }
+
+        private fun isFileReferenceParameter(parameterName: String?): Boolean {
+            if (parameterName == null) return false
+            if (parameterName in KNOWN_FILE_REFERENCE_PARAM_NAMES) return true
+            return parameterName.endsWith("Uri", ignoreCase = true) ||
+                parameterName.endsWith("Uris", ignoreCase = true)
+        }
+
+        private fun isUriMetadata(dataType: AppFunctionDataTypeMetadata?): Boolean {
+            if (dataType == null) return false
+            if (dataType is AppFunctionObjectTypeMetadata && dataType.qualifiedName == "android.net.Uri") return true
+            if (dataType is AppFunctionReferenceTypeMetadata && dataType.referenceDataType == "android.net.Uri") return true
+            return false
+        }
+
+        private suspend fun executeInternalTool(toolCall: LlmResponsePart.ToolCall): Result<String> {
+            return runCatching {
+                when (toolCall.functionId) {
+                    "getCurrentLocation" -> {
+                        val location = agentInternalTools.getCurrentLocation()
+                        if (location != null) {
+                            JSONObject().apply {
+                                put("latitude", location.latitude)
+                                put("longitude", location.longitude)
+                            }.toString()
+                        } else {
+                            "null"
+                        }
+                    }
+                    "geocodeAddress" -> {
+                        val address =
+                            toolCall.arguments["address"] as? String
+                                ?: throw IllegalArgumentException("Missing required parameter 'address'")
+                        val location = agentInternalTools.geocodeAddress(address)
+                        if (location != null) {
+                            JSONObject().apply {
+                                put("latitude", location.latitude)
+                                put("longitude", location.longitude)
+                            }.toString()
+                        } else {
+                            "null"
+                        }
+                    }
+                    "generateImage" -> {
+                        val prompt =
+                            toolCall.arguments["prompt"] as? String
+                                ?: throw IllegalArgumentException("Missing required parameter 'prompt'")
+                        val aspectRatio = toolCall.arguments["aspectRatio"] as? String
+                        val result = agentInternalTools.generateImage(prompt, aspectRatio)
+                        JSONObject().apply {
+                            put("imageUri", result.imageUri)
+                            put("mimeType", result.mimeType)
+                            put("prompt", result.prompt)
+                        }.toString()
+                    }
+                    else -> throw IllegalArgumentException("Unknown internal tool: ${toolCall.functionId}")
+                }
+            }
+        }
+
+        companion object {
+            private val KNOWN_FILE_REFERENCE_PARAM_NAMES =
+                setOf(
+                    "wallpaperUri",
+                    "imageUri",
+                    "attachmentUri",
+                    "ringtoneUri",
+                    "profilePictureUri",
+                    "audioUri",
+                    "voiceNoteUri",
+                )
+        }
+    }
