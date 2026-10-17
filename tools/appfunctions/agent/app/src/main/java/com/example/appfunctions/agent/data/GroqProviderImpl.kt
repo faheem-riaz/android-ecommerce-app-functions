@@ -101,7 +101,9 @@ class GroqProviderImpl @Inject constructor(
                     args.mapValues { toValue(it.value) }, call.getValue("id").jsonPrimitive.content)
             }
             val text = message["content"]?.jsonPrimitive?.contentOrNull
-            if (!text.isNullOrBlank()) parts.add(0, LlmResponsePart.Text(text))
+            // Text sent alongside tool calls is usually a draft answer that the next round repeats,
+            // so only show text from the final, tool-free round. It still goes into the history.
+            if (!text.isNullOrBlank() && parts.isEmpty()) parts += LlmResponsePart.Text(text)
             if (parts.isEmpty()) return LlmResponse.Error("Groq returned no text or function calls.")
 
             // Keep only fields Chat Completions accepts back as an assistant turn.

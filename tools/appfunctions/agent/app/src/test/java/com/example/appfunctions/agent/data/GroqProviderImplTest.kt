@@ -28,7 +28,7 @@ class GroqProviderImplTest {
         val client = HttpClient(MockEngine { request ->
             requests += Json.parseToJsonElement((request.body as TextContent).text).jsonObject
             val body = if (requests.size == 1)
-                """{"choices":[{"finish_reason":"tool_calls","message":{"role":"assistant","content":null,"reasoning":"think","tool_calls":[{"id":"call_1","type":"function","function":{"name":"$name","arguments":"{\"query\":\"headphones\"}"}}]}}]}"""
+                """{"choices":[{"finish_reason":"tool_calls","message":{"role":"assistant","content":"Draft answer","reasoning":"think","tool_calls":[{"id":"call_1","type":"function","function":{"name":"$name","arguments":"{\"query\":\"headphones\"}"}}]}}]}"""
             else """{"choices":[{"finish_reason":"stop","message":{"role":"assistant","content":"Headphones cost EUR 79.90."}}]}"""
             respond(body, HttpStatusCode.OK, json)
         })
@@ -53,6 +53,7 @@ class GroqProviderImplTest {
             val replay = requests[1].getValue("messages").jsonArray.map { it.jsonObject }
             assertEquals(listOf("system", "user", "assistant", "tool"), replay.map { it.getValue("role").jsonPrimitive.content })
             assertFalse("reasoning must not be replayed", replay[2].containsKey("reasoning"))
+            assertEquals("draft text stays in history", "Draft answer", replay[2].getValue("content").jsonPrimitive.content)
             assertEquals("call_1", replay[3].getValue("tool_call_id").jsonPrimitive.content)
             assertNotEquals(first.interactionId, second.interactionId)
         } finally { client.close() }
