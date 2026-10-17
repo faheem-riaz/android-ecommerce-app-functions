@@ -1,5 +1,7 @@
 # Feemag Shop — ecommerce AppFunctions demo
 
+**Blog post:** [Building an Android Shop That AI Agents Can Use](blog/android-ecommerce-appfunctions-kotlin/index.md), a full walkthrough with code, screenshots and lessons from testing with Groq, OpenAI and Gemini.
+
 A Kotlin/Jetpack Compose Android app with a fixed 12-product catalog, category and keyword search, stock filters, price sorting, product details and a persisted local cart. Seven AppFunctions expose the same repository to authorized callers. No backend, login, API key, payment or real orders are required or implemented.
 
 ## Open and build

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" font-family="Inter, Roboto, Helvetica, Arial, sans-serif">
+  <title>One request through the tool-calling loop</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3c4a43"/>
+    </marker>
+  </defs>
+  <rect width="960" height="560" fill="#f7f5ef"/>
+
+  <!-- Lifelines -->
+  <g font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="30" y="20" width="150" height="44" rx="10" fill="#ffffff" stroke="#3c4a43"/>
+    <text x="105" y="48" fill="#2c2a25">You</text>
+    <rect x="250" y="20" width="170" height="44" rx="10" fill="#fbf1e4" stroke="#8a5a1f"/>
+    <text x="335" y="48" fill="#4a3313">Testing Agent</text>
+    <rect x="490" y="20" width="170" height="44" rx="10" fill="#f1ecf8" stroke="#6a4a9a"/>
+    <text x="575" y="48" fill="#3d2d5c">Groq model</text>
+    <rect x="730" y="20" width="200" height="44" rx="10" fill="#e8f2ee" stroke="#1f6f55"/>
+    <text x="830" y="48" fill="#17322a">Android → Feemag Shop</text>
+  </g>
+  <g stroke="#b9b3a5" stroke-width="2" stroke-dasharray="4 6">
+    <line x1="105" y1="64" x2="105" y2="540"/>
+    <line x1="335" y1="64" x2="335" y2="540"/>
+    <line x1="575" y1="64" x2="575" y2="540"/>
+    <line x1="830" y1="64" x2="830" y2="540"/>
+  </g>
+
+  <g font-size="13" fill="#2c2a25" stroke-width="2">
+    <line x1="105" y1="104" x2="331" y2="104" stroke="#3c4a43" marker-end="url(#a)"/>
+    <text x="116" y="80">"@Feemag Shop find in-stock</text>
+    <text x="116" y="96">headphones under €100"</text>
+
+    <line x1="335" y1="160" x2="571" y2="160" stroke="#3c4a43" marker-end="url(#a)"/>
+    <text x="348" y="152">message + 7 tool schemas</text>
+
+    <line x1="575" y1="214" x2="339" y2="214" stroke="#6a4a9a" marker-end="url(#a)"/>
+    <text x="362" y="206" fill="#4b3870">tool_call: searchProducts</text>
+    <g fill="#5b6660" font-family="ui-monospace, Menlo, monospace" font-size="12">
+      <text x="362" y="232">query: "wireless headphones"</text>
+      <text x="362" y="248">maxPriceMinor: 10000</text>
+      <text x="362" y="264">inStockOnly: true</text>
+    </g>
+
+    <line x1="335" y1="304" x2="826" y2="304" stroke="#3c4a43" marker-end="url(#a)"/>
+    <text x="348" y="296">executeAppFunction(com.feemag.shop, searchProducts, args)</text>
+
+    <line x1="830" y1="346" x2="339" y2="346" stroke="#1f6f55" marker-end="url(#a)"/>
+    <text x="440" y="338" fill="#1f6f55">ProductPage: audio-01 · 7990 cents · stock 12</text>
+
+    <line x1="335" y1="392" x2="571" y2="392" stroke="#3c4a43" marker-end="url(#a)"/>
+    <text x="348" y="384">role: tool, tool_call_id, result JSON</text>
+
+    <line x1="575" y1="446" x2="339" y2="446" stroke="#6a4a9a" marker-end="url(#a)"/>
+    <text x="362" y="438" fill="#4b3870">final text (no more tool calls)</text>
+
+    <line x1="335" y1="500" x2="109" y2="500" stroke="#3c4a43" marker-end="url(#a)"/>
+    <text x="122" y="474">"Studio Wireless Headphones,</text>
+    <text x="122" y="490">€79.90, 12 in stock"</text>
+  </g>
+</svg>

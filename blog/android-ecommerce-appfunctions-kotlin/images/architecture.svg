@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" font-family="Inter, Roboto, Helvetica, Arial, sans-serif">
+  <title>Feemag Shop AppFunctions architecture</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a5a52"/>
+    </marker>
+  </defs>
+  <rect width="960" height="470" fill="#f7f5ef"/>
+
+  <!-- Shop app -->
+  <rect x="24" y="24" width="372" height="422" rx="16" fill="#ffffff" stroke="#1f6f55" stroke-width="2"/>
+  <text x="44" y="56" font-size="18" font-weight="700" fill="#1f6f55">Feemag Shop app</text>
+  <text x="44" y="78" font-size="13" fill="#5b6660">com.feemag.shop · Kotlin · Jetpack Compose</text>
+
+  <rect x="44" y="100" width="150" height="74" rx="10" fill="#e8f2ee" stroke="#9cc5b5"/>
+  <text x="119" y="132" font-size="15" font-weight="600" fill="#17322a" text-anchor="middle">Compose UI</text>
+  <text x="119" y="153" font-size="12" fill="#5b6660" text-anchor="middle">for people</text>
+
+  <rect x="226" y="100" width="150" height="74" rx="10" fill="#e8f2ee" stroke="#9cc5b5"/>
+  <text x="301" y="127" font-size="15" font-weight="600" fill="#17322a" text-anchor="middle">AppFunctions</text>
+  <text x="301" y="146" font-size="15" font-weight="600" fill="#17322a" text-anchor="middle">service</text>
+  <text x="301" y="165" font-size="12" fill="#5b6660" text-anchor="middle">7 functions, for agents</text>
+
+  <rect x="104" y="232" width="212" height="70" rx="10" fill="#1f6f55"/>
+  <text x="210" y="262" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">ShopRepository</text>
+  <text x="210" y="284" font-size="12" fill="#d7ebe3" text-anchor="middle">search · validation · stock · totals</text>
+
+  <rect x="44" y="352" width="150" height="66" rx="10" fill="#f1efe8" stroke="#cfcabd"/>
+  <text x="119" y="381" font-size="14" font-weight="600" fill="#2c2a25" text-anchor="middle">Demo catalog</text>
+  <text x="119" y="400" font-size="12" fill="#5b6660" text-anchor="middle">12 products</text>
+
+  <rect x="226" y="352" width="150" height="66" rx="10" fill="#f1efe8" stroke="#cfcabd"/>
+  <text x="301" y="381" font-size="14" font-weight="600" fill="#2c2a25" text-anchor="middle">Cart storage</text>
+  <text x="301" y="400" font-size="12" fill="#5b6660" text-anchor="middle">private, persisted</text>
+
+  <line x1="119" y1="174" x2="170" y2="230" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="301" y1="174" x2="250" y2="230" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="170" y1="302" x2="128" y2="350" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="250" y1="302" x2="292" y2="350" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Android system -->
+  <rect x="440" y="100" width="190" height="130" rx="14" fill="#eef1f8" stroke="#6b7fb3" stroke-width="2"/>
+  <text x="535" y="134" font-size="16" font-weight="700" fill="#2b3a66" text-anchor="middle">Android</text>
+  <text x="535" y="156" font-size="14" font-weight="600" fill="#2b3a66" text-anchor="middle">AppFunctionManager</text>
+  <text x="535" y="182" font-size="12" fill="#55607d" text-anchor="middle">registry · permission check</text>
+  <text x="535" y="200" font-size="12" fill="#55607d" text-anchor="middle">binds the app's service</text>
+  <line x1="438" y1="137" x2="380" y2="137" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Callers -->
+  <rect x="676" y="24" width="260" height="246" rx="16" fill="#ffffff" stroke="#8a5a1f" stroke-width="2"/>
+  <text x="696" y="56" font-size="18" font-weight="700" fill="#8a5a1f">Authorized callers</text>
+  <text x="696" y="78" font-size="13" fill="#5b6660">need EXECUTE_APP_FUNCTIONS</text>
+
+  <rect x="696" y="96" width="220" height="70" rx="10" fill="#fbf1e4" stroke="#e0c49b"/>
+  <text x="806" y="124" font-size="14" font-weight="600" fill="#4a3313" text-anchor="middle">AppFunction Testing Agent</text>
+  <text x="806" y="145" font-size="12" fill="#6b5a44" text-anchor="middle">chat UI + tool-calling loop</text>
+
+  <rect x="696" y="182" width="220" height="70" rx="10" fill="#fbf1e4" stroke="#e0c49b"/>
+  <text x="806" y="210" font-size="14" font-weight="600" fill="#4a3313" text-anchor="middle">adb shell cmd app_function</text>
+  <text x="806" y="231" font-size="12" fill="#6b5a44" text-anchor="middle">scripts, CI, a desktop AI</text>
+
+  <line x1="694" y1="131" x2="634" y2="150" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="694" y1="217" x2="634" y2="190" stroke="#4a5a52" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- LLMs -->
+  <rect x="676" y="318" width="260" height="128" rx="16" fill="#ffffff" stroke="#6a4a9a" stroke-width="2"/>
+  <text x="696" y="350" font-size="18" font-weight="700" fill="#6a4a9a">Model providers</text>
+  <text x="696" y="378" font-size="13" fill="#3d3550">Groq · openai/gpt-oss-120b</text>
+  <text x="696" y="400" font-size="13" fill="#3d3550">OpenAI · gpt-6-luna</text>
+  <text x="696" y="422" font-size="13" fill="#3d3550">Gemini · gemini-3.8-flash</text>
+  <path d="M918,131 H926 V316" fill="none" stroke="#6a4a9a" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+  <text x="914" y="294" font-size="12" fill="#6a4a9a" text-anchor="end">tool schemas out,</text>
+  <text x="914" y="310" font-size="12" fill="#6a4a9a" text-anchor="end">function calls back</text>
+</svg>
