@@ -245,6 +245,7 @@ class AgentOrchestrator
             return when (provider) {
                 LlmProviderName.GEMINI -> settingsRepository.geminiApiKey.first()
                 LlmProviderName.OPENAI -> settingsRepository.openAiApiKey.first()
+                LlmProviderName.GROQ -> settingsRepository.groqApiKey.first()
             }
         }
 

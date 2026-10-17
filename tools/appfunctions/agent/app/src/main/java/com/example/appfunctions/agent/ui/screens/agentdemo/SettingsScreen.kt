@@ -92,6 +92,7 @@ fun SettingsScreen(
     SettingsScreenContent(
         geminiApiKeyState = viewModel.geminiApiKeyState,
         openAiApiKeyState = viewModel.openAiApiKeyState,
+        groqApiKeyState = viewModel.groqApiKeyState,
         serviceTier = uiState.serviceTier,
         onServiceTierSelected = viewModel::setServiceTier,
         onOpenLicenses = onOpenLicensesClick,
@@ -105,6 +106,7 @@ fun SettingsScreen(
 fun SettingsScreenContent(
     geminiApiKeyState: TextFieldState,
     openAiApiKeyState: TextFieldState = remember { TextFieldState() },
+    groqApiKeyState: TextFieldState = remember { TextFieldState() },
     serviceTier: ServiceTier,
     onServiceTierSelected: (ServiceTier) -> Unit,
     onOpenLicenses: () -> Unit,
@@ -144,6 +146,18 @@ fun SettingsScreenContent(
                 )
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Text("Groq API key", modifier = Modifier.padding(bottom = 8.dp))
+                OutlinedTextField(
+                    value = groqApiKeyState.text.toString(),
+                    onValueChange = { groqApiKeyState.setTextAndPlaceCursorAtEnd(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = CircleShape,
+                )
+                Text("Free plan available at console.groq.com. Saved when you leave Settings. Choose openai/gpt-oss-120b in a new chat. App function inputs and results are sent to Groq.", style = MaterialTheme.typography.bodySmall)
+            }
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                 Text("OpenAI API key", modifier = Modifier.padding(bottom = 8.dp))
                 OutlinedTextField(
                     value = openAiApiKeyState.text.toString(),
@@ -153,7 +167,7 @@ fun SettingsScreenContent(
                     visualTransformation = PasswordVisualTransformation(),
                     shape = CircleShape,
                 )
-                Text("Saved when you leave Settings. Choose gpt-5.4-mini in a new chat. App function inputs and results are sent to OpenAI.", style = MaterialTheme.typography.bodySmall)
+                Text("Saved when you leave Settings. Choose gpt-6-luna in a new chat. App function inputs and results are sent to OpenAI.", style = MaterialTheme.typography.bodySmall)
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                 Text(

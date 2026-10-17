@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class FakeSettingsRepository : SettingsRepository {
     override val openAiApiKey = MutableStateFlow<String?>(null)
     override suspend fun setOpenAiApiKey(apiKey: String) { openAiApiKey.value = apiKey }
+    override val groqApiKey = MutableStateFlow<String?>(null)
+    override suspend fun setGroqApiKey(apiKey: String) { groqApiKey.value = apiKey }
     private val _geminiApiKey = MutableStateFlow<String?>(null)
     override val geminiApiKey: Flow<String?> = _geminiApiKey
 

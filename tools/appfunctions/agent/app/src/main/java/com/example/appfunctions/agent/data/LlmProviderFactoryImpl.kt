@@ -27,11 +27,13 @@ class LlmProviderFactoryImpl
     constructor(
         private val geminiProvider: GeminiProviderImpl,
         private val openAiProvider: OpenAiProviderImpl,
+        private val groqProvider: GroqProviderImpl,
     ) : LlmProviderFactory {
         override fun getProvider(name: LlmProviderName): LlmProvider {
             return when (name) {
                 LlmProviderName.GEMINI -> geminiProvider
                 LlmProviderName.OPENAI -> openAiProvider
+                LlmProviderName.GROQ -> groqProvider
             }
         }
     }

@@ -35,6 +35,7 @@ class DataStoreSettingsRepository
         // TODO: Make sure the API keys are not leaked in the I/O event.
         private object PreferencesKeys {
             val OPENAI_API_KEY = stringPreferencesKey("openai_api_key")
+            val GROQ_API_KEY = stringPreferencesKey("groq_api_key")
             val GEMINI_API_KEY = stringPreferencesKey("gemini_api_key")
             val SELECTED_PROVIDER = stringPreferencesKey("selected_provider")
             val SERVICE_TIER = stringPreferencesKey("service_tier")
@@ -46,6 +47,12 @@ class DataStoreSettingsRepository
 
         override suspend fun setOpenAiApiKey(apiKey: String) {
             dataStore.edit { it[PreferencesKeys.OPENAI_API_KEY] = apiKey.trim() }
+        }
+
+        override val groqApiKey: Flow<String?> = dataStore.data.map { it[PreferencesKeys.GROQ_API_KEY] }
+
+        override suspend fun setGroqApiKey(apiKey: String) {
+            dataStore.edit { it[PreferencesKeys.GROQ_API_KEY] = apiKey.trim() }
         }
 
         override val geminiApiKey: Flow<String?> =
@@ -60,6 +67,7 @@ class DataStoreSettingsRepository
                 preferences[PreferencesKeys.SELECTED_PROVIDER]?.let { storedValue ->
                     when (storedValue.uppercase()) {
                         "OPENAI" -> LlmProviderName.OPENAI
+                        "GROQ" -> LlmProviderName.GROQ
                         "GEMINI" -> LlmProviderName.GEMINI
                         else -> LlmProviderName.GEMINI
                     }

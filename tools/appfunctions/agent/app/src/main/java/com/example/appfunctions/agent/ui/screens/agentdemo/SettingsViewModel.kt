@@ -42,6 +42,7 @@ class SettingsViewModel
     ) : ViewModel() {
         val geminiApiKeyState = TextFieldState()
         val openAiApiKeyState = TextFieldState()
+        val groqApiKeyState = TextFieldState()
 
         val uiState: StateFlow<SettingsUiState> =
             combine(
@@ -59,6 +60,7 @@ class SettingsViewModel
         init {
             viewModelScope.launch {
                 openAiApiKeyState.setTextAndPlaceCursorAtEnd(settingsRepository.openAiApiKey.firstOrNull().orEmpty())
+                groqApiKeyState.setTextAndPlaceCursorAtEnd(settingsRepository.groqApiKey.firstOrNull().orEmpty())
                 val geminiKey = settingsRepository.geminiApiKey.firstOrNull()
                 if (!geminiKey.isNullOrEmpty()) {
                     geminiApiKeyState.setTextAndPlaceCursorAtEnd(geminiKey)
@@ -71,6 +73,7 @@ class SettingsViewModel
                 withContext(NonCancellable) {
                     settingsRepository.setGeminiApiKey(geminiApiKeyState.text.toString())
                     settingsRepository.setOpenAiApiKey(openAiApiKeyState.text.toString())
+                    settingsRepository.setGroqApiKey(groqApiKeyState.text.toString())
                 }
             }
         }

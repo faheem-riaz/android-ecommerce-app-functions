@@ -599,22 +599,13 @@ fun ModelDropdown(
         ) {
             item {
                 Text(
-                    "--- OpenAI / Gemini ---",
+                    "--- Groq / OpenAI / Gemini ---",
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
-            val models =
-                listOf(
-                    LlmModel.OPENAI_GPT_5_4_MINI,
-                    LlmModel.GEMINI_3_5_FLASH,
-                    LlmModel.GEMINI_3_1_FLASH_LITE,
-                    LlmModel.GEMINI_3_1_PRO_PREVIEW,
-                    LlmModel.GEMINI_3_FLASH_PREVIEW,
-                    LlmModel.GEMINI_3_1_FLASH_LITE_PREVIEW,
-                )
-            items(models) { model ->
+            items(LlmModel.SELECTABLE) { model ->
                 DropdownMenuItem(
                     text = { Text(model.modelName) },
                     onClick = {

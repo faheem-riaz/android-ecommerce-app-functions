@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     val openAiApiKey: Flow<String?>
     suspend fun setOpenAiApiKey(apiKey: String)
+    val groqApiKey: Flow<String?>
+    suspend fun setGroqApiKey(apiKey: String)
 
     /** Flow of the Gemini API key. */
     val geminiApiKey: Flow<String?>
