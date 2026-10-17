@@ -79,6 +79,41 @@ class GroqProviderImplTest {
         } finally { client.close() }
     }
 
+    @Test fun shortRateLimitIsRetriedOnceAutomatically() = runBlocking {
+        var calls = 0
+        val client = HttpClient(MockEngine {
+            calls++
+            if (calls == 1) respond(
+                """{"error":{"message":"Rate limit reached for model `m` in organization `org_x` on tokens per minute (TPM): Limit 8000, Used 7000, Requested 1200. Please try again in 0.1s.","code":"rate_limit_exceeded"}}""",
+                HttpStatusCode.TooManyRequests, json)
+            else respond("""{"choices":[{"finish_reason":"stop","message":{"content":"ok"}}]}""", HttpStatusCode.OK, json)
+        })
+        try {
+            val result = GroqProviderImpl(client, converter).generateResponse(null, LlmInput.UserMessage("x"), listOf(tool), "test", "m")
+            assertTrue(result is LlmResponse.Success)
+            assertEquals(2, calls)
+        } finally { client.close() }
+    }
+
+    @Test fun requestLargerThanPlanIsNotRetriedAndExplainsFix() = runBlocking {
+        var calls = 0
+        val client = HttpClient(MockEngine {
+            calls++
+            respond("""{"error":{"message":"Request too large for model `m` in organization `org_secret` on tokens per minute (TPM): Limit 8000, Requested 9500, please reduce your message size and try again.","code":"rate_limit_exceeded"}}""",
+                HttpStatusCode.PayloadTooLarge, json)
+        })
+        try {
+            val result = GroqProviderImpl(client, converter).generateResponse(null, LlmInput.UserMessage("x"), listOf(tool), "test", "m") as LlmResponse.Error
+            assertEquals(1, calls)
+            assertTrue(result.errorMessage, result.errorMessage.contains("9500") && result.errorMessage.contains("8000") && result.errorMessage.contains("@"))
+            assertFalse(result.errorMessage.contains("org_secret"))
+        } finally { client.close() }
+        val daily = GroqProviderImpl.RateLimit.parse("""{"error":{"message":"Rate limit reached on requests per day (RPD): Limit 1000, Used 1000, Requested 1. Please try again in 2m3.5s."}}""", null)
+        assertEquals("RPD", daily.kind)
+        assertEquals(123.5, daily.retryAfterSeconds!!, 0.01)
+        assertTrue(daily.message().contains("daily"))
+    }
+
     @Test fun pickerOffersOnlyCurrentModelsAndKeepsLegacyThreadsLoadable() {
         assertEquals(LlmModel.GROQ_GPT_OSS_120B, LlmModel.DEFAULT)
         assertTrue(LlmModel.DEFAULT in LlmModel.SELECTABLE)
