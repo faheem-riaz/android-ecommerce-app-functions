@@ -126,7 +126,7 @@ class AgentOrchestrator
                     completeMessageWithError(
                         message.messageId,
                         message.threadId,
-                        "API key is missing for ${provider.name}",
+                        "API key is missing for ${provider.name}. Add it in Settings, or tap the model name at the top to switch this chat to another provider.",
                     )
                     _status.value = AgentStatus.Idle
                     return

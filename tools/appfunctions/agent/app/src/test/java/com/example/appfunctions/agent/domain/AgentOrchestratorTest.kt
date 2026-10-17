@@ -133,7 +133,7 @@ class AgentOrchestratorTest {
                 sendMessageUseCase(
                     threadId = threadId,
                     role = MessageRole.ASSISTANT,
-                    textContent = "API key is missing for GEMINI",
+                    textContent = "API key is missing for GEMINI. Add it in Settings, or tap the model name at the top to switch this chat to another provider.",
                     processingStatus = MessageProcessingStatus.FAILED,
                 )
             }

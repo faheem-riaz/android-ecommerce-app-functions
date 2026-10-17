@@ -85,5 +85,7 @@ class GroqProviderImplTest {
         assertTrue(LlmModel.OPENAI_GPT_5_4_MINI in LlmModel.LEGACY)
         assertEquals(LlmModel.entries.size, LlmModel.SELECTABLE.size + LlmModel.LEGACY.size)
         assertEquals("gemini-3.1-flash-lite", LlmModel.valueOf("GEMINI_3_1_FLASH_LITE_PREVIEW").modelName)
+        assertEquals(LlmModel.DEFAULT, LlmModel.forNewThread(LlmModel.GEMINI_3_5_FLASH))
+        assertEquals(LlmModel.GEMINI_3_8_FLASH, LlmModel.forNewThread(LlmModel.GEMINI_3_8_FLASH))
     }
 }

@@ -71,5 +71,8 @@ enum class LlmModel private constructor(val providerName: LlmProviderName, val m
             )
 
         val LEGACY = entries - SELECTABLE.toSet()
+
+        /** A new thread keeps the current model unless that model is no longer offered. */
+        fun forNewThread(current: LlmModel): LlmModel = if (current in SELECTABLE) current else DEFAULT
     }
 }

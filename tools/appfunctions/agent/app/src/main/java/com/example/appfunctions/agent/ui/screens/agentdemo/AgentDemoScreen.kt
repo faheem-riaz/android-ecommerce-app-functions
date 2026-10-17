@@ -262,7 +262,7 @@ fun AgentDemoLoadedScreen(
                 )
                 IconButton(
                     onClick = {
-                        onEvent(AgentUiEvent.OnCreateThread(uiState.currentThread.llmModel))
+                        onEvent(AgentUiEvent.OnCreateThread(LlmModel.forNewThread(uiState.currentThread.llmModel)))
                     },
                     modifier = Modifier.padding(horizontal = 8.dp),
                 ) {
